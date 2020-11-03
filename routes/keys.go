@@ -32,8 +32,9 @@ func RPointHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !datasources.HasDatasource(datasourceID) {
-		logging.Error.Println("RPointPubKeyHandler - Invalid Datasource: ", datasourceID)
-		http.Error(w, fmt.Sprintf("Invalid datasource %d", datasourceID), http.StatusInternalServerError)
+		message := fmt.Sprintf("Invalid Datasource ID: [%v].", datasourceID)
+		logging.Error.Println("RPointPubKeyHandler - Invalid Datasource ID: ", datasourceID)
+		http.Error(w, message, http.StatusNotFound)
 		return
 	}
 
@@ -80,7 +81,7 @@ func RPointHandler(w http.ResponseWriter, r *http.Request) {
 
 // PubKeyResponse A string
 type PubKeyResponse struct {
-	A string
+	Key string
 }
 
 // PubKeyHandler returns DLC Oracle public key
@@ -93,7 +94,7 @@ func PubKeyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := PubKeyResponse{
-		A: hex.EncodeToString(A[:]),
+		Key: hex.EncodeToString(A[:]),
 	}
 
 	js, err := json.Marshal(response)

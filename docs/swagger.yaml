@@ -1,0 +1,224 @@
+basePath: /api
+consumes:
+- application/json
+definitions:
+  DataSourceResponse:
+    description: DataSourceResponse with Name, Description, ID, CurrentValue and ValueError
+    properties:
+      currentValue:
+        format: uint64
+        type: integer
+        x-go-name: CurrentValue
+      description:
+        type: string
+        x-go-name: Description
+      id:
+        format: uint64
+        type: integer
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+      valueError:
+        type: string
+        x-go-name: ValueError
+    type: object
+    x-go-package: github.com/tirith-tech/dlc-oracle/routes
+  DataSourceValueResponse:
+    description: DataSourceValueResponse for CurrentValue of datasource
+    properties:
+      currentValue:
+        format: uint64
+        type: integer
+        x-go-name: CurrentValue
+      valueError:
+        type: string
+        x-go-name: ValueError
+    type: object
+    x-go-package: github.com/tirith-tech/dlc-oracle/routes
+  PubKeyResponse:
+    description: PubKeyResponse A string
+    properties:
+      Key:
+        type: string
+    type: object
+    x-go-package: github.com/tirith-tech/dlc-oracle/routes
+  PublicationResponse:
+    description: PublicationResponse for marshalling JSON response with Value, Signature, Timestamp, and Name
+    properties:
+      name:
+        type: string
+        x-go-name: Name
+      signature:
+        type: string
+        x-go-name: Signature
+      timestamp:
+        format: uint64
+        type: integer
+        x-go-name: Timestamp
+      value:
+        format: uint64
+        type: integer
+        x-go-name: Value
+    type: object
+    x-go-package: github.com/tirith-tech/dlc-oracle/routes
+  PublicationsResponse:
+    description: PublicationsResponse returns a list of PublicationResponses
+    properties:
+      publications:
+        items:
+          $ref: '#/definitions/PublicationResponse'
+        type: array
+        x-go-name: Publications
+    type: object
+    x-go-package: github.com/tirith-tech/dlc-oracle/routes
+  RPointResponse:
+    description: RPointResponse R string
+    properties:
+      R:
+        type: string
+    type: object
+    x-go-package: github.com/tirith-tech/dlc-oracle/routes
+host: localhost:3000
+info:
+  description: Documentation of Tirith DLC Oracle Rest API.
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+  title: Tirith DLC Oracle.
+  version: 0.0.1
+paths:
+  /datasource/{id}/value:
+    get:
+      operationId: idDatasourceValueEndpoint
+      parameters:
+      - format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "200":
+          $ref: '#/responses/DataSourceValueResponse'
+      summary: DataSourceValue returns the value for a datasource by ID.
+      tags:
+      - Datasources
+  /datasources:
+    get:
+      operationId: idDatasourcesEndpoint
+      responses:
+        "200":
+          $ref: '#/responses/DataSourceResponse'
+      summary: DataSources returns a list of available datasources.
+      tags:
+      - Datasources
+  /pubkey:
+    get:
+      operationId: idPubkeyEndpoint
+      responses:
+        "200":
+          $ref: '#/responses/PubKeyResponse'
+      summary: Pubkey returns the public key of the DLC Oracle.
+      tags:
+      - PubKey
+  /publication/{R}:
+    get:
+      operationId: idPublicationEndpoint
+      parameters:
+      - in: path
+        name: R
+        required: true
+        type: string
+      responses:
+        "200":
+          $ref: '#/responses/PublicationResponse'
+        "500":
+          description: ' Server Error'
+      summary: PublicationResponse returns the value, signature, timestamp, and name for corresponding rPoint.
+      tags:
+      - Publications
+  /publications/tradepair/{base}/{quote}:
+    get:
+      operationId: idPublicationsEndpoint
+      parameters:
+      - in: path
+        name: base
+        required: true
+        type: string
+        x-go-name: Base
+      - in: path
+        name: quote
+        required: true
+        type: string
+        x-go-name: Quote
+      responses:
+        "200":
+          $ref: '#/responses/PublicationsResponse'
+        "500":
+          description: ' Server Error'
+      summary: PublicationsResponse returns a list of publications with value, signature, timestamp, and name for corresponding rPoint.
+      tags:
+      - Publications
+  /rpoint/{id}/{timestamp}:
+    get:
+      operationId: idRPointEndpoint
+      parameters:
+      - format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
+      - format: int64
+        in: path
+        name: timestamp
+        required: true
+        type: integer
+        x-go-name: Timestamp
+      responses:
+        "200":
+          $ref: '#/responses/RPointResponse'
+        "404":
+          description: ' No datasource available for ID'
+        "406":
+          description: ' Timestamp must be divisible by datasource publishing interval'
+        "500":
+          description: ' Server Error'
+      summary: RPointResponse returns the Oracle R point for a given ID and unix timestamp.
+      tags:
+      - rPoint
+produces:
+- application/json
+responses:
+  DataSourceResponse:
+    description: Returns a JSON list of datasources.
+    schema:
+      $ref: '#/definitions/DataSourceResponse'
+  DataSourceValueResponse:
+    description: Returns the value for a datasource by ID.
+    schema:
+      $ref: '#/definitions/DataSourceValueResponse'
+  PubKeyResponse:
+    description: Returns the Oracle public key.
+    schema:
+      $ref: '#/definitions/PubKeyResponse'
+  PublicationResponse:
+    description: Returns value, signature, timestamp, and name for corresponding rPoint.
+    schema:
+      $ref: '#/definitions/PublicationResponse'
+  PublicationsResponse:
+    description: Returns value, signature, timestamp, and name for corresponding rPoint.
+    schema:
+      $ref: '#/definitions/PublicationsResponse'
+  RPointResponse:
+    description: Returns an rPoint for a given ID and timestamp.
+    schema:
+      $ref: '#/definitions/RPointResponse'
+schemes:
+- http
+- https
+securityDefinitions:
+  basic:
+    type: basic
+swagger: "2.0"

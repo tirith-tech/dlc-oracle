@@ -12,6 +12,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// PublicationsResponse returns a list of PublicationResponses
+type PublicationsResponse struct {
+	Publications []PublicationResponse `json:"publications"`
+}
+
 // PublicationsHandler takes a base and quote and returns all related publications
 func PublicationsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("PublicationsHandler")
