@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 	"os/user"
 	"path"
@@ -10,12 +9,12 @@ import (
 	"github.com/tirith-tech/dlc-oracle/crypto"
 	"github.com/tirith-tech/dlc-oracle/logging"
 	"github.com/tirith-tech/dlc-oracle/publisher"
-	"github.com/tirith-tech/dlc-oracle/routes"
+	"github.com/tirith-tech/dlc-oracle/rest"
+	"github.com/tirith-tech/dlc-oracle/rpc"
 	"github.com/tirith-tech/dlc-oracle/store"
+	"github.com/urfave/cli/v2"
 
 	"github.com/awnumar/memguard"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
 	dlcoracle "github.com/mit-dci/dlc-oracle-go"
 )
 
@@ -50,27 +49,43 @@ func main() {
 	// Purge the session when we return
 	defer memguard.Purge()
 
+	app := &cli.App{
+		Name:  "Tirith DLC Oracle",
+		Usage: "The Beacons of Minas Tirith! The Beacons are lit!",
+		Commands: []*cli.Command{
+			{
+				Name:  "rest",
+				Usage: "Run Oracle as RESTful API",
+				Action: func(c *cli.Context) error {
+					services()
+					// REST API
+					rest.Init()
+					return nil
+				},
+			},
+			{
+				Name:  "rpc",
+				Usage: "Run Oracle as gRPC API",
+				Action: func(c *cli.Context) error {
+					services()
+					// gRPC Server
+					rpc.Init()
+					return nil
+				},
+			},
+		},
+	}
+
+	err = app.Run(os.Args)
+	if err != nil {
+		logging.Error.Fatal(err)
+	}
+}
+
+func services() {
 	store.Init()
 	logging.Info.Println("Connecting to MongoDB...")
 
 	publisher.Init()
 	logging.Info.Println("Started publisher...")
-
-	r := mux.NewRouter()
-	r.HandleFunc("/api/datasources", routes.ListDataSourcesHandler)
-	r.HandleFunc("/api/datasource/{id}/value", routes.DataSourceValueHandler)
-	r.HandleFunc("/api/pubkey", routes.PubKeyHandler)
-	r.HandleFunc("/api/rpoint/{id}/{timestamp}", routes.RPointHandler)
-	r.HandleFunc("/api/publication/{R}", routes.PublicationHandler)
-	r.HandleFunc("/api/publications/tradepair/{base}/{quote}", routes.PublicationsHandler)
-	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static"))))
-
-	// CORS
-	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{"*"})
-	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
-
-	logging.Info.Println("Listening on port 3000")
-
-	logging.Error.Fatal(http.ListenAndServe(":3000", handlers.CORS(originsOk, headersOk, methodsOk)(logging.WebLoggingMiddleware(r))))
 }

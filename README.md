@@ -17,7 +17,7 @@ Second, you will need to install [MongoDB](https://docs.mongodb.com/manual/insta
 Next, clone the repo:
 
 ```
-go get github.com/tirith-oracle/dlc-oracle
+go get github.com/tirith-tech/dlc-oracle
 ```
 
 Then, you will need to install the dependencies from the root directory:
@@ -26,10 +26,16 @@ Then, you will need to install the dependencies from the root directory:
 go mod download
 ```
 
-Finally, run:
+To run as RESTful API:
 
 ```
-go run main.go
+go run main.go rest
+```
+
+to run as gRPC API:
+
+```
+go run main.go rpc
 ```
 
 # REST Endpoints

@@ -7,3 +7,6 @@ generate-swagger: check-swagger
 
 serve-swagger: check-swagger
 	swagger serve -F=swagger docs/swagger.yaml
+
+generate-protobuf: 
+	protoc rpc/protobuf/oracle.proto --go_out=plugins=grpc:.

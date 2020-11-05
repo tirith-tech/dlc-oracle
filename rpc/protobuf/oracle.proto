@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+package oracle;
+option go_package="rpc/protobuf";
+
+service OracleService {
+  rpc PubKey(google.protobuf.Empty) returns (PubKeyResponse) {};
+  rpc DataSources(google.protobuf.Empty) returns (stream DataSourcesResponse) {};
+  rpc DataSource(DataSourceRequest) returns (DataSourceResponse) {};
+  rpc RPoint(RPointRequest) returns (RPointResponse) {};
+  rpc Publication(PublicationRequest) returns (PublicationResponse) {};
+  rpc Publications(PublicationsRequest) returns (stream PublicationResponse) {};
+}
+
+message PubKeyResponse {
+  string pubkey = 1;
+}
+
+message DataSourcesResponse {
+  string name = 1;
+  string description = 2;
+  uint64 id = 3;
+  uint64 current_value = 4;
+  string value_error = 5;
+}
+
+message DataSourceRequest {
+  uint64 id = 1;
+}
+
+message DataSourceResponse {
+  uint64 current_value = 1;
+  string value_error = 2; 
+}
+
+message RPointRequest {
+  uint64 id = 1;
+  int64 timestamp = 2;  
+}
+
+message RPointResponse {
+  string r_point = 1; 
+}
+
+message PublicationRequest {
+  string r_point = 1; 
+}
+
+message PublicationResponse {
+  uint64 value = 1;
+  string signature = 2;
+  uint64 timestamp = 3;
+  string name = 4;
+}
+
+message PublicationsRequest {
+  string base = 1; 
+  string quote = 2;
+}
