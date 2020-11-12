@@ -37,7 +37,6 @@ func main() {
 
 	getPubKey(c)
 	getDataSources(c)
-	getDataSource(c)
 	getRPoint(c)
 	getPublication(c)
 	getPublications(c)
@@ -71,18 +70,6 @@ func getDataSources(c protobuf.OracleServiceClient) {
 		}
 		log.Printf("%v [%v] %v [current value in sats: %v]", ds.GetName(), ds.GetId(), ds.GetDescription(), ds.GetCurrentValue())
 	}
-}
-
-func getDataSource(c protobuf.OracleServiceClient) {
-	fmt.Println("getDataSource Unary RPC call...")
-	req := &protobuf.DataSourceRequest{
-		Id: 1, // Get current price for datasource=1
-	}
-	res, err := c.DataSource(context.Background(), req)
-	if err != nil {
-		log.Fatalf("Error while calling getDataSource RPC: %v", err)
-	}
-	log.Printf("Response from getDataSource: %v", res.CurrentValue)
 }
 
 func getRPoint(c protobuf.OracleServiceClient) {

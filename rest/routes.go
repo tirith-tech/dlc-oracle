@@ -13,7 +13,6 @@ func Init() {
 	// Rest API
 	r := mux.NewRouter()
 	r.HandleFunc("/api/datasources", ListDataSourcesHandler)
-	r.HandleFunc("/api/datasource/{id}/value", DataSourceValueHandler)
 	r.HandleFunc("/api/pubkey", PubKeyHandler)
 	r.HandleFunc("/api/rpoint/{id}/{timestamp}", RPointHandler)
 	r.HandleFunc("/api/publication/{R}", PublicationHandler)

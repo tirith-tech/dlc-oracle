@@ -59,26 +59,6 @@ func (*server) DataSources(empty *emptypb.Empty, stream protobuf.OracleService_D
 	return nil
 }
 
-func (*server) DataSource(ctx context.Context, req *protobuf.DataSourceRequest) (*protobuf.DataSourceResponse, error) {
-	logging.Info.Printf("DataSource was invoked with %v\n", req)
-	id := req.GetId()
-	ds, err := datasources.GetDatasource(id)
-	if err != nil {
-		logging.Error.Println("gRPC - DataSource: ", err)
-		return nil, err
-	}
-	value, err := ds.Value()
-	if err != nil {
-		logging.Error.Println("gRPC - DataSource: ", err)
-		return nil, err
-	}
-	res := &protobuf.DataSourceResponse{
-		CurrentValue: value,
-		ValueError:   "",
-	}
-	return res, nil
-}
-
 func (*server) RPoint(ctx context.Context, req *protobuf.RPointRequest) (*protobuf.RPointResponse, error) {
 	logging.Info.Printf("RPoint was invoked with %v\n", req)
 	id := req.GetId()

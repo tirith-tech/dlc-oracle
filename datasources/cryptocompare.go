@@ -3,6 +3,7 @@ package datasources
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 
 	"github.com/tirith-tech/dlc-oracle/logging"
@@ -38,36 +39,39 @@ type data struct {
 	ConversionSymbol string  `json:"conversionSymbol"`
 }
 
-// BTC trading pair structure with historical prices map (used as cache for historical calls)
-type BTC struct {
-	ID     uint64
-	Base   string
-	Quote  string
-	prices map[uint64]float64
+// CryptoCompare structure with historical prices map (used as cache for historical calls)
+type CryptoCompare struct {
+	ID       uint64
+	Provider string
+	Base     string
+	Quote    string
+	interval uint64
+	roundTo  uint64
+	prices   map[uint64]float64
 }
 
 // Id receiver function returns ID
-func (ds *BTC) Id() uint64 {
+func (ds *CryptoCompare) Id() uint64 {
 	return ds.ID
 }
 
 // Name receiver function returns Base name of pair traded against BTC
-func (ds *BTC) Name() string {
+func (ds *CryptoCompare) Name() string {
 	return fmt.Sprintf("%v/%v", ds.Base, ds.Quote)
 }
 
 // Description returns string description of pair
-func (ds *BTC) Description() string {
-	return fmt.Sprintf("Publishes the value of %v denominated in 1/100000000th units of %v (satoshis)", ds.Base, ds.Quote)
+func (ds *CryptoCompare) Description() string {
+	return fmt.Sprintf("Publishes the value of %v denominated in 1/100000000th units of %v (satoshis) in multitudes of %v", ds.Base, ds.Quote, ds.roundTo)
 }
 
 // Interval returns the time interval between published data in seconds
-func (ds *BTC) Interval() uint64 {
-	return 300 // every 5 minutes
+func (ds *CryptoCompare) Interval() uint64 {
+	return ds.interval
 }
 
 // Value returns the current value of asset priced in satoshis
-func (ds *BTC) Value() (uint64, error) {
+func (ds *CryptoCompare) Value() (uint64, error) {
 	url := fmt.Sprintf("https://min-api.cryptocompare.com/data/price?fsym=%v&tsyms=%v", ds.Base, ds.Quote)
 	resp, err := ds.getData(url)
 	if err != nil {
@@ -85,16 +89,16 @@ func (ds *BTC) Value() (uint64, error) {
 		return 0, err
 	}
 
-	satoshiValue := satoshis(record.Value)
+	satoshiValue := ds.satoshisRounded(record.Value)
 	logging.Info.Printf("[%v] %v CURRENT [sats: %v]\n", ds.ID, ds.Name(), satoshiValue)
 	return satoshiValue, nil
 }
 
 // HistoricalValue returns the historical value of an asset priced in satoshis at a given timestamp
-func (ds *BTC) HistoricalValue(timestamp uint64) (uint64, error) {
+func (ds *CryptoCompare) HistoricalValue(timestamp uint64) (uint64, error) {
 	// Check to see if timestamp key exists in prices map, and if so, return value
 	if ds.prices[timestamp] != 0 {
-		satoshiValue := satoshis(ds.prices[timestamp])
+		satoshiValue := ds.satoshisRounded(ds.prices[timestamp])
 		logging.Info.Printf("[%v] %v HISTORICAL [sats: %v]\n", ds.ID, ds.Name(), satoshiValue)
 		return satoshiValue, nil // Price available at this timestamp
 	}
@@ -102,7 +106,7 @@ func (ds *BTC) HistoricalValue(timestamp uint64) (uint64, error) {
 	// Timestamp missing from prices map, populate map from CryptoCompare
 	recordRange := uint64(2000 * 60) // 2000 minute candles
 	fromTimestamp := timestamp + recordRange
-	logging.Info.Printf("[%v] %v - CryptoCompare - FETCHING HISTORICAL [ts: %v]\n", ds.ID, ds.Name(), fromTimestamp)
+	logging.Info.Printf("[%v] %v - %v - FETCHING HISTORICAL [ts: %v]\n", ds.ID, ds.Name(), ds.Provider, fromTimestamp)
 	url := fmt.Sprintf("https://min-api.cryptocompare.com/data/v2/histominute?fsym=%v&tsym=%v&limit=2000&toTs=%v", ds.Base, ds.Quote, fromTimestamp)
 	resp, err := ds.getData(url)
 	if err != nil {
@@ -122,7 +126,7 @@ func (ds *BTC) HistoricalValue(timestamp uint64) (uint64, error) {
 	// Check to be sure that oldest historical record is not more recent than requested timestamp value
 	oldest := record.Data.Data[0].Time
 	if oldest > timestamp {
-		return 0, fmt.Errorf("[%v] %v - CryptoCompare - NO DATA - OLDEST [ts: %v] > NEEDED [ts: %v]", ds.ID, ds.Name(), oldest, timestamp)
+		return 0, fmt.Errorf("[%v] %v - %v - NO DATA - OLDEST [ts: %v] > NEEDED [ts: %v]", ds.ID, ds.Name(), ds.Provider, oldest, timestamp)
 	}
 
 	// Add timestamps/closes to map
@@ -131,7 +135,7 @@ func (ds *BTC) HistoricalValue(timestamp uint64) (uint64, error) {
 	}
 
 	if ds.prices[timestamp] != 0 {
-		satoshiValue := satoshis(ds.prices[timestamp])
+		satoshiValue := ds.satoshisRounded(ds.prices[timestamp])
 		logging.Info.Printf("[%v] %v HISTORICAL [sats: %v]\n", ds.ID, ds.Name(), satoshiValue)
 		return satoshiValue, nil // Price available at this timestamp
 	} else {
@@ -140,7 +144,7 @@ func (ds *BTC) HistoricalValue(timestamp uint64) (uint64, error) {
 }
 
 // Helper function to get data from a url
-func (ds *BTC) getData(url string) (*http.Response, error) {
+func (ds *CryptoCompare) getData(url string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		message := fmt.Sprintf("[%v] %v.Value - NewRequest:", ds.ID, ds.Name())
@@ -160,7 +164,8 @@ func (ds *BTC) getData(url string) (*http.Response, error) {
 	return resp, nil
 }
 
-// Helper function to convert BTC to satoshis
-func satoshis(price float64) uint64 {
-	return uint64(price * 100000000)
+// Helper function to convert BTC to satoshis by roundTo
+func (ds *CryptoCompare) satoshisRounded(price float64) uint64 {
+	place := float64(100000000 / ds.roundTo)
+	return uint64(math.Floor((price*place)+0.5)) * ds.roundTo
 }

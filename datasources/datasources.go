@@ -1,7 +1,9 @@
 package datasources
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 )
 
 // Datasource interface
@@ -14,22 +16,33 @@ type Datasource interface {
 	Interval() uint64
 }
 
-// Base currencies for Base/Quote pairs: USD/BTC, EUR/BTC, ETH/BTC, etc.
-// Order of slice of string cannot be changed without breaking IDs for pairs.
-// New bases should be added to the end of slice.
-var bases = []string{"USD", "EUR", "JPY", "ETH", "BCH", "LTC", "XRP"}
+type pair struct {
+	ID       uint64 `json:"id"`
+	Provider string `json:"provider"`
+	Base     string `json:"base"`
+	Interval uint64 `json:"interval"`
+	RoundTo  uint64 `json:"roundTo"`
+}
 
 // GetAllDatasources returns all available datasources
 func GetAllDatasources() []Datasource {
 	var datasources []Datasource
 
-	for i, val := range bases {
-		datasources = append(datasources, &BTC{
-			ID:     uint64(i + 1),
-			Base:   val,
-			Quote:  "BTC",
-			prices: make(map[uint64]float64),
-		})
+	pairs := getPairs()
+
+	for _, pair := range pairs {
+		if pair.Provider == "Crypto Compare" {
+			datasources = append(datasources, &CryptoCompare{
+				ID:       uint64(pair.ID),
+				Provider: pair.Provider,
+				Base:     pair.Base,
+				Quote:    "BTC",
+				interval: uint64(pair.Interval),
+				roundTo:  uint64(pair.RoundTo),
+				prices:   make(map[uint64]float64),
+			})
+		}
+
 	}
 	return datasources
 }
@@ -39,16 +52,47 @@ func GetDatasource(id uint64) (Datasource, error) {
 	if !HasDatasource(id) {
 		return nil, fmt.Errorf("Data source with ID %d not known", id)
 	} else {
-		return &BTC{
-			ID:     id,
-			Base:   bases[id-1],
-			Quote:  "BTC",
-			prices: make(map[uint64]float64),
-		}, nil
+		pairs := getPairs()
+
+		for _, pair := range pairs {
+			if pair.ID == id {
+				if pair.Provider == "Crypto Compare" {
+					return &CryptoCompare{
+						ID:       id,
+						Provider: pair.Provider,
+						Base:     pair.Base,
+						Quote:    "BTC",
+						interval: uint64(pair.Interval),
+						roundTo:  uint64(pair.RoundTo),
+						prices:   make(map[uint64]float64),
+					}, nil
+				}
+			}
+		}
 	}
+	return nil, nil
 }
 
 // HasDatasource return boolean response for a given datasource ID
 func HasDatasource(id uint64) bool {
-	return (id <= uint64(len(bases)))
+	pairs := getPairs()
+	return (id <= uint64(len(pairs)))
+}
+
+func getPairs() []pair {
+	// Get pairs from JSON
+	// Pair IDs must not be changed once node(s) launched
+	file, err := ioutil.ReadFile("datasources/btcpairs.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var pairs []pair
+
+	err = json.Unmarshal([]byte(file), &pairs)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return pairs
 }
