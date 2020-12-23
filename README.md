@@ -1,4 +1,4 @@
-<img src="logo.png">
+<img src="logo-dark.png">
 
 # Tirith DLC Oracle
 
