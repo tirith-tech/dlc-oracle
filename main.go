@@ -38,6 +38,7 @@ func main() {
 	keyFilePath := path.Join(dataDir, "privkey.hex")
 
 	key, err := dlcoracle.ReadKeyFile(keyFilePath)
+
 	if err != nil {
 		logging.Error.Fatal("Could not open or create keyfile:", err)
 		os.Exit(1)
