@@ -31,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// pw := []byte{}
+
 	err = dlcoracle.SaveKeyToFileInteractive(keyFilePath, key)
 	if err != nil {
 		logging.Error.Fatal(err)

@@ -6,7 +6,7 @@ This project serves as an oracle to settle Discreet Log Contracts.
 
 This oracle is REST-accessible. It automatically generates R-points on request and keeps published values stored for later retrieval.
 
-The data sources publish every 5 minutes.
+The data sources publish every 60 minutes.
 
 # Installation
 
