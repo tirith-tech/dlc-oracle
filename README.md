@@ -40,13 +40,14 @@ go run main.go rpc
 
 # REST Endpoints
 
-| Resource                                                     | Description                                                                                                                       |
-| :----------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------- |
-| [`localhost:3000/api/pubkey`]                                | Returns the public key of the oracle                                                                                              |
-| [`localhost:3000/api/datasources`]                           | Returns an array of data sources the oracle publishes                                                                             |
-| [`localhost:3000/api/rpoint/{s}/{t}`]                        | Returns the public one-time-signing key for datasource with ID **s** at the unix timestamp **t**.                                 |
-| [`localhost:3000/api/publication/{R}`]                       | Returns the value, signature, timestamp, and name published for data source point **R** (if published). R is hex encoded [33]byte |
-| [`localhost:3000/api/publications/tradepair/{base}/{quote}`] | Returns the value, signature, timestamp, and name of all published records for a given pair of **base** and **quote**             |
+| Resource                                                        | Description                                                                                                                       |
+| :-------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------- |
+| [`localhost:3000/api/pubkey`]                                   | Returns the public key of the oracle                                                                                              |
+| [`localhost:3000/api/datasources`]                              | Returns an array of data sources the oracle publishes                                                                             |
+| [`localhost:3000/api/rpoint/{s}/{t}`]                           | Returns the public one-time-signing key for datasource with ID **s** at the unix timestamp **t**.                                 |
+| [`localhost:3000/api/pub/rpoint/{R}`]                           | Returns the value, signature, timestamp, and name published for data source point **R** (if published). R is hex encoded [33]byte |
+| [`localhost:3000/api/pub/tradepair/{base}/{quote}/{timestamp}`] | Returns (value, signature, timestamp, name) of published record for a given pair of **base**/**quote** and **timestamp**          |
+| [`localhost:3000/api/pubs/tradepair/{base}/{quote}`]            | Returns the value, signature, timestamp, and name of all published records for a given pair of **base** and **quote**             |
 
 # Swagger API Documentation
 

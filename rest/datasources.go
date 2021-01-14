@@ -5,15 +5,24 @@ import (
 	"net/http"
 
 	"github.com/tirith-tech/dlc-oracle/datasources"
+	"github.com/tirith-tech/dlc-oracle/logging"
+	"github.com/tirith-tech/dlc-oracle/store"
 )
 
-// DataSourceResponse with Name, Description, ID, CurrentValue and ValueError
+// SeriesResponse with Name, Data
+type SeriesResponse struct {
+	Name string     `json:"name"`
+	Data [][]uint64 `json:"data"`
+}
+
+// DataSourceResponse with Name, Description, ID, CurrentValue, Series and ValueError
 type DataSourceResponse struct {
-	Name         string `json:"name"`
-	Description  string `json:"description"`
-	ID           uint64 `json:"id"`
-	CurrentValue uint64 `json:"currentValue"`
-	ValueError   string `json:"valueError,omitempty"`
+	Name         string         `json:"name"`
+	Description  string         `json:"description"`
+	ID           uint64         `json:"id"`
+	CurrentValue uint64         `json:"currentValue"`
+	Series       SeriesResponse `json:"series"`
+	ValueError   string         `json:"valueError,omitempty"`
 }
 
 // ListDataSourcesHandler handles request for all datasources
@@ -23,13 +32,32 @@ func ListDataSourcesHandler(w http.ResponseWriter, r *http.Request) {
 
 	response := []DataSourceResponse{}
 	for _, src := range ds {
+
+		publications, err := store.GetAllPublicationsByName(src.Name())
+		if err != nil {
+			logging.Error.Println("SubscribeHandler - Error getting all publications: ", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		series := make([][]uint64, len(publications))
+
+		for _, p := range publications {
+			tick := []uint64{p.Timestamp * 1000, p.Value}
+			series = append(series, tick)
+		}
+
 		value, err := src.Value()
+
+		seriesResponse := SeriesResponse{Name: src.Name(), Data: series}
 
 		jsonSrc := DataSourceResponse{
 			Name:         src.Name(),
 			Description:  src.Description(),
 			ID:           src.Id(),
-			CurrentValue: value}
+			CurrentValue: value,
+			Series:       seriesResponse,
+		}
 
 		if err != nil {
 			jsonSrc.ValueError = err.Error()

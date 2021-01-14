@@ -152,6 +152,21 @@ func GetPublication(rPoint [33]byte) (uint64, []byte, uint64, string, error) {
 	return result.Value, result.Signature, result.Timestamp, result.Name, nil
 }
 
+// GetPublicationByNameAndTimestamp takes name and timestamp and returns value, signature, timestamp and name of publication if found
+func GetPublicationByNameAndTimestamp(name string, timestamp uint64) (uint64, []byte, uint64, string, error) {
+	var result Publication
+	filter := bson.M{"name": name, "timestamp": timestamp}
+	err := collectionPubs.FindOne(ctx, filter).Decode(&result)
+	if err != nil {
+		fmt.Println(err)
+		return 0, []byte{}, 0, "", fmt.Errorf("Publication not found")
+	}
+
+	logging.Info.Printf("Publication for %v found at Timestamp %v with Signature %v and Value %v\n", name, timestamp, result.Signature, result.Value)
+
+	return result.Value, result.Signature, result.Timestamp, result.Name, nil
+}
+
 // GetLastPublicationTimestamp finds most recent timestamp for all publications
 // This function is used to gather historical data in the event an Oracle is down and rebooted and datapoints are missing
 func GetLastPublicationTimestamp() (uint64, error) {

@@ -21,7 +21,6 @@ type PublicationsResponse struct {
 func PublicationsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("PublicationsHandler")
 	vars := mux.Vars(r)
-	fmt.Println(vars)
 	name := fmt.Sprintf("%v/%v", vars["base"], vars["quote"])
 
 	publications, err := store.GetAllPublicationsByName(name)

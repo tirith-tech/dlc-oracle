@@ -15,8 +15,9 @@ func Init() {
 	r.HandleFunc("/api/datasources", ListDataSourcesHandler)
 	r.HandleFunc("/api/pubkey", PubKeyHandler)
 	r.HandleFunc("/api/rpoint/{id}/{timestamp}", RPointHandler)
-	r.HandleFunc("/api/publication/{R}", PublicationHandler)
-	r.HandleFunc("/api/publications/tradepair/{base}/{quote}", PublicationsHandler)
+	r.HandleFunc("/api/pub/rpoint/{R}", PublicationHandler)
+	r.HandleFunc("/api/pub/tradepair/{base}/{quote}/{timestamp}", PublicationByNameAndTimestampHandler)
+	r.HandleFunc("/api/pubs/tradepair/{base}/{quote}", PublicationsHandler)
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static"))))
 
 	// CORS
