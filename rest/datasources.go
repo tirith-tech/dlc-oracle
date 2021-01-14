@@ -2,6 +2,7 @@ package rest
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/tirith-tech/dlc-oracle/datasources"
@@ -40,11 +41,13 @@ func ListDataSourcesHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		series := make([][]uint64, len(publications))
+		series := make([][]uint64, 0)
 
 		for _, p := range publications {
 			tick := []uint64{p.Timestamp * 1000, p.Value}
+			fmt.Println(tick)
 			series = append(series, tick)
+			fmt.Println(series)
 		}
 
 		value, err := src.Value()
