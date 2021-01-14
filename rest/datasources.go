@@ -18,12 +18,12 @@ type SeriesResponse struct {
 
 // DataSourceResponse with Name, Description, ID, CurrentValue, Series and ValueError
 type DataSourceResponse struct {
-	Name         string         `json:"name"`
-	Description  string         `json:"description"`
-	ID           uint64         `json:"id"`
-	CurrentValue uint64         `json:"currentValue"`
-	Series       SeriesResponse `json:"series"`
-	ValueError   string         `json:"valueError,omitempty"`
+	Name         string           `json:"name"`
+	Description  string           `json:"description"`
+	ID           uint64           `json:"id"`
+	CurrentValue uint64           `json:"currentValue"`
+	Series       []SeriesResponse `json:"series"`
+	ValueError   string           `json:"valueError,omitempty"`
 }
 
 // ListDataSourcesHandler handles request for all datasources
@@ -53,13 +53,15 @@ func ListDataSourcesHandler(w http.ResponseWriter, r *http.Request) {
 		value, err := src.Value()
 
 		seriesResponse := SeriesResponse{Name: src.Name(), Data: series}
+		seriesSlice := []SeriesResponse{}
+		seriesSlice = append(seriesSlice, seriesResponse)
 
 		jsonSrc := DataSourceResponse{
 			Name:         src.Name(),
 			Description:  src.Description(),
 			ID:           src.Id(),
 			CurrentValue: value,
-			Series:       seriesResponse,
+			Series:       seriesSlice,
 		}
 
 		if err != nil {
