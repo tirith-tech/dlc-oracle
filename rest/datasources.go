@@ -44,10 +44,12 @@ func ListDataSourcesHandler(w http.ResponseWriter, r *http.Request) {
 		series := make([][]uint64, 0)
 
 		for _, p := range publications {
-			tick := []uint64{p.Timestamp * 1000, p.Value}
-			fmt.Println(tick)
-			series = append(series, tick)
-			fmt.Println(series)
+			if p.Timestamp%86400 == 0 { // Limit to midnight only
+				tick := []uint64{p.Timestamp * 1000, p.Value}
+				fmt.Println(tick)
+				series = append(series, tick)
+				fmt.Println(series)
+			}
 		}
 
 		value, err := src.Value()
