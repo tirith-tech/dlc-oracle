@@ -23,6 +23,58 @@ func main() {
 
 	logging.Info.Println("Tirith Discreet Log Oracle starting...")
 
+	app := &cli.App{
+		Name:  "Tirith DLC Oracle",
+		Usage: "The Beacons of Minas Tirith! The Beacons are lit!",
+		Commands: []*cli.Command{
+			{
+				Name:  "rest",
+				Usage: "Run Oracle as RESTful API",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "password",
+						Aliases: []string{"p"},
+						Usage:   "Pass password to process",
+					},
+				},
+				Action: func(c *cli.Context) error {
+					log.Print(c.String("password"))
+					loadKey([]byte(c.String("password")))
+					services()
+					// REST API
+					rest.Init()
+					return nil
+				},
+			},
+			{
+				Name:  "rpc",
+				Usage: "Run Oracle as gRPC API",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "password",
+						Aliases: []string{"p"},
+						Usage:   "Pass password to process",
+					},
+				},
+				Action: func(c *cli.Context) error {
+					log.Print(c.String("password"))
+					loadKey([]byte(c.String("password")))
+					services()
+					// gRPC Server
+					rpc.Init()
+					return nil
+				},
+			},
+		},
+	}
+
+	err := app.Run(os.Args)
+	if err != nil {
+		logging.Error.Fatal(err)
+	}
+}
+
+func loadKey(password []byte) {
 	// Create app folder in user's homedir
 	usr, err := user.Current()
 	if err != nil {
@@ -37,7 +89,7 @@ func main() {
 	// Read or create a keyfile
 	keyFilePath := path.Join(dataDir, "privkey.hex")
 
-	key, err := dlcoracle.ReadKeyFile(keyFilePath)
+	key, err := dlcoracle.LoadKeyFromFileArg(keyFilePath, password)
 
 	if err != nil {
 		logging.Error.Fatal("Could not open or create keyfile:", err)
@@ -49,38 +101,6 @@ func main() {
 
 	// Purge the session when we return
 	defer memguard.Purge()
-
-	app := &cli.App{
-		Name:  "Tirith DLC Oracle",
-		Usage: "The Beacons of Minas Tirith! The Beacons are lit!",
-		Commands: []*cli.Command{
-			{
-				Name:  "rest",
-				Usage: "Run Oracle as RESTful API",
-				Action: func(c *cli.Context) error {
-					services()
-					// REST API
-					rest.Init()
-					return nil
-				},
-			},
-			{
-				Name:  "rpc",
-				Usage: "Run Oracle as gRPC API",
-				Action: func(c *cli.Context) error {
-					services()
-					// gRPC Server
-					rpc.Init()
-					return nil
-				},
-			},
-		},
-	}
-
-	err = app.Run(os.Args)
-	if err != nil {
-		logging.Error.Fatal(err)
-	}
 }
 
 func services() {
