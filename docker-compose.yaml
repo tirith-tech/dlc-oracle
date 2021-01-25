@@ -8,13 +8,11 @@ services:
     volumes:
       - oracle-data:/root
     restart: always
-    environment:
-      ORACLE_PW: /run/secrets/oracle_pw
     secrets:
       - oracle_pw
     depends_on:
       - 'mongo'
-    command: sh -c "./dlc-oracle rest --password ${ORACLE_PW}"
+    command: sh -c "./dlc-oracle rest --password /run/secrets/oracle_pw"
   mongo:
     image: 'mongo:latest'
     container_name: 'mongo'
