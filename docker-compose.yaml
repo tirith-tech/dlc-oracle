@@ -6,12 +6,28 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - '.:/go/src/app'
+      - oracle-data:/root
+    restart: always
+    environment:
+      ORACLE_PW: /run/secrets/oracle_pw
+    secrets:
+      - oracle_pw
     depends_on:
       - 'mongo'
-    command: sh -c "go run util/createkey.go && ./dlc-oracle rest"
+    command: sh -c "./dlc-oracle rest --password ${ORACLE_PW}"
   mongo:
     image: 'mongo:latest'
     container_name: 'mongo'
+    restart: always
     ports:
       - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  oracle-data:
+  mongo-data:
+
+secrets:
+  oracle_pw:
+    external: true

@@ -1,4 +1,5 @@
 <img src="logo-dark.png">
+<br><br>
 
 # Tirith DLC Oracle
 
@@ -7,6 +8,7 @@ This project serves as an oracle to settle Discreet Log Contracts.
 This oracle is REST-accessible. It automatically generates R-points on request and keeps published values stored for later retrieval.
 
 The data sources publish every 60 minutes.
+<br><br>
 
 # Installation
 
@@ -38,6 +40,8 @@ to run as gRPC API:
 go run main.go rpc
 ```
 
+<br><br>
+
 # REST Endpoints
 
 | Resource                                                        | Description                                                                                                                       |
@@ -49,6 +53,8 @@ go run main.go rpc
 | [`localhost:3000/api/pub/tradepair/{base}/{quote}/{timestamp}`] | Returns (value, signature, timestamp, name) of published record for a given pair of **base**/**quote** and **timestamp**          |
 | [`localhost:3000/api/pubs/tradepair/{base}/{quote}`]            | Returns the value, signature, timestamp, and name of all published records for a given pair of **base** and **quote**             |
 
+<br><br>
+
 # Swagger API Documentation
 
 If you don't already have and use the very excellent [Postman API Platform](https://www.postman.com/downloads/) for API development, you can get started playing with the API easily using Swagger. From the root directory of this project run:
@@ -56,6 +62,27 @@ If you don't already have and use the very excellent [Postman API Platform](http
 ```
 make serve-swagger
 ```
+
+<br><br>
+
+# Docker
+
+You will need [Docker](https://www.docker.com/) installed on your machine.
+
+1. First, set a docker secret as your Oracle Private Key encryption password:
+
+```
+ echo "YOUR_PASSWORD" | docker secret create oracle_pw -
+```
+
+2. Next, run:
+
+```
+docker-compose up
+```
+
+You will find all of the endpoints at [`localhost:3000`] the same as compiling and running from Go locally.
+<br><br>
 
 # License
 

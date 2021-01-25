@@ -23,7 +23,7 @@ var ctx = context.TODO()
 // "Publications" which contains Value, Signature, Timestamp, and Name of publication
 func Init() {
 	// Set MongoDB options and create client
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://mongo")
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		logging.Error.Print(err)

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"fmt"
 	"log"
 	"os"
 	"os/user"
@@ -72,6 +74,9 @@ func main() {
 	if err != nil {
 		logging.Error.Fatal(err)
 	}
+
+	// Purge the session when we return
+	defer memguard.Purge()
 }
 
 func loadKey(password []byte) {
@@ -89,18 +94,42 @@ func loadKey(password []byte) {
 	// Read or create a keyfile
 	keyFilePath := path.Join(dataDir, "privkey.hex")
 
-	key, err := dlcoracle.LoadKeyFromFileArg(keyFilePath, password)
+	key, err := readKeyFile(keyFilePath, password)
 
 	if err != nil {
 		logging.Error.Fatal("Could not open or create keyfile:", err)
 		os.Exit(1)
 	}
 	crypto.StoreKey(key)
+
 	// Safely terminate in case of an interrupt signal
 	memguard.CatchInterrupt()
+}
 
-	// Purge the session when we return
-	defer memguard.Purge()
+func readKeyFile(filename string, password []byte) (*[32]byte, error) {
+	key := new([32]byte)
+	_, err := os.Stat(filename)
+	if err != nil {
+		if os.IsNotExist(err) {
+			// no key found, generate and save one
+			fmt.Printf("No file %s, generating.\n", filename)
+
+			_, err := rand.Read(key[:])
+			if err != nil {
+				return nil, err
+			}
+
+			err = dlcoracle.SaveKeyToFileArg(filename, key, password)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			// unknown error, crash
+			fmt.Printf("unknown\n")
+			return nil, err
+		}
+	}
+	return dlcoracle.LoadKeyFromFileArg(filename, password)
 }
 
 func services() {
