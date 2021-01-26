@@ -3,11 +3,11 @@
 
 # Tirith DLC Oracle
 
-This project serves as an oracle to settle Discreet Log Contracts.
+This project serves as an oracle to settle Bitcoin Discreet Log Contracts.
 
 This oracle is REST-accessible. It automatically generates R-points on request and keeps published values stored for later retrieval.
 
-The data sources publish every 60 minutes.
+The data sources publish every 24 hours at midnight GMT.
 <br><br>
 
 # Installation
