@@ -25,7 +25,7 @@ func Init() {
 	originsOk := handlers.AllowedOrigins([]string{"*"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
-	logging.Info.Println("Listening on port 3000")
+	logging.Info.Println("Listening on port 80")
 
-	logging.Error.Fatal(http.ListenAndServe(":3000", handlers.CORS(originsOk, headersOk, methodsOk)(logging.WebLoggingMiddleware(r))))
+	logging.Error.Fatal(http.ListenAndServe(":80", handlers.CORS(originsOk, headersOk, methodsOk)(logging.WebLoggingMiddleware(r))))
 }
