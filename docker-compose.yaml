@@ -1,10 +1,16 @@
 version: '3.3'
 services:
+  tirith-ui:
+    image: 'robertwilliamallen/tirith-ui-app'
+    container_name: 'tirith-ui'
+    ports:
+      - '80:80'
+    restart: always
   dlc-oracle:
     container_name: 'dlc-oracle'
     build: '.'
     ports:
-      - '80:80'
+      - '3000:3000'
     volumes:
       - oracle-data:/root
     restart: always
