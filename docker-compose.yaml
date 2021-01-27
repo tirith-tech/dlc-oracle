@@ -4,7 +4,7 @@ services:
     container_name: 'dlc-oracle'
     build: '.'
     ports:
-      - '3000:3000'
+      - '80:80'
     volumes:
       - oracle-data:/root
     restart: always
