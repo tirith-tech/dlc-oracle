@@ -88,4 +88,4 @@ You will find all of the endpoints at [`localhost:3000`] the same as compiling a
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Forked from [https://github.com/mit-dci/dlc-oracle-go-samples](mit-dci/dlc-oracle-go-samples)
+Forked from [https://github.com/mit-dci/dlc-oracle-go-samples](https://github.com/mit-dci/dlc-oracle-go-samples)
