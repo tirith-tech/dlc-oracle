@@ -18,5 +18,5 @@
     "base": "JPY",
     "interval": 3600,
     "roundTo": 1
-  },
+  }
 ]
