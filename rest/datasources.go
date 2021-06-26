@@ -50,17 +50,9 @@ func ListDataSourcesHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		// Only send 30 most recent values
-		trimmedSeries := make([][]uint64, 0)
-		if len(series) > 30 {
-			trimmedSeries = series[len(series)-30:]
-		} else {
-			trimmedSeries = series
-		}
-
 		value, err := src.Value()
 
-		seriesResponse := SeriesResponse{Name: src.Name(), Data: trimmedSeries}
+		seriesResponse := SeriesResponse{Name: src.Name(), Data: series}
 		seriesSlice := []SeriesResponse{}
 		seriesSlice = append(seriesSlice, seriesResponse)
 

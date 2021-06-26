@@ -1,51 +1,22 @@
-[
-  {
-    "id": 1, 
-    "provider": "Crypto Compare", 
-    "base": "USD", 
-    "interval": 3600, 
+[{
+    "id": 1,
+    "provider": "Crypto Compare",
+    "base": "USD",
+    "interval": 3600,
     "roundTo": 100
   },
   {
-    "id": 2, 
-    "provider": "Crypto Compare", 
-    "base": "EUR", 
-    "interval": 3600, 
+    "id": 2,
+    "provider": "Crypto Compare",
+    "base": "EUR",
+    "interval": 3600,
     "roundTo": 100
   },
   {
-    "id": 3, 
-    "provider": "Crypto Compare", 
-    "base": "JPY", 
-    "interval": 3600, 
+    "id": 3,
+    "provider": "Crypto Compare",
+    "base": "JPY",
+    "interval": 3600,
     "roundTo": 1
   },
-  {
-    "id": 4,
-    "provider": "Crypto Compare",
-    "base": "ETH", 
-    "interval": 3600, 
-    "roundTo": 100
-  },
-  {
-    "id": 5, 
-    "provider": "Crypto Compare", 
-    "base": "BCH", 
-    "interval": 3600, 
-    "roundTo": 100
-  },
-  {
-    "id": 6, 
-    "provider": "Crypto Compare", 
-    "base": "LTC", 
-    "interval": 3600, 
-    "roundTo": 100
-  },
-  {
-    "id": 7, 
-    "provider": "Crypto Compare", 
-    "base": "XRP", 
-    "interval": 3600, 
-    "roundTo": 10
-  }
 ]

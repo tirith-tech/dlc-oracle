@@ -57,7 +57,7 @@ go run main.go rpc
 
 # Swagger API Documentation
 
-If you don't already have and use the very excellent [Postman API Platform](https://www.postman.com/downloads/) for API development, you can get started playing with the API easily using Swagger. From the root directory of this project run:
+If you don't already have and use the very excellent [Insomnia API Platform](https://insomnia.rest/) for API development, you can get started playing with the API easily using Swagger. From the root directory of this project run:
 
 ```
 make serve-swagger
