@@ -24,8 +24,9 @@ func Init() {
 		lastPublished = uint64(time.Now().Unix())
 		logging.Error.Println(err)
 		logging.Error.Println("No publications found. Starting from current timestamp:", lastPublished)
+	} else {
+		logging.Info.Println("Resuming from last publication timestamp:", lastPublished)
 	}
-	logging.Info.Println("Resuming from last publication timestamp:", lastPublished)
 
 	dataSources = datasources.GetAllDatasources()
 
