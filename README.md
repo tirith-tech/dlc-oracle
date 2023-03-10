@@ -1,7 +1,4 @@
-<img src="logo-dark.png">
-<br><br>
-
-# Tirith DLC Oracle
+# DLC Oracle
 
 This project serves as an oracle to settle Bitcoin Discreet Log Contracts.
 
